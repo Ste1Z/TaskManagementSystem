@@ -19,7 +19,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -108,8 +111,10 @@ public class JwtService {
 
     public JwtAuthentication generate(Claims claims) {
         String login = claims.getSubject();
-        Set<Role> roles = claims.get("roles", Set.class);
-        new JwtAuthentication(true, login, roles);
-        return null;
+        List<String> roleNames = claims.get("roles", List.class);
+        Set<Role> roles = roleNames.stream()
+                .map(Role::valueOf)
+                .collect(Collectors.toSet());
+        return new JwtAuthentication(true, login, roles);
     }
 }

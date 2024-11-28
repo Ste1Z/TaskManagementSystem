@@ -1,4 +1,4 @@
-package ru.effectivemobile.taskmanagementsystem.domain.response;
+package ru.effectivemobile.taskmanagementsystem.domain.dto;
 
 import java.util.UUID;
 

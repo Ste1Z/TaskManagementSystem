@@ -1,6 +1,8 @@
 package ru.effectivemobile.taskmanagementsystem.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -49,11 +51,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Task> myTasks;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "executor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Task> assignedTasks;
 }

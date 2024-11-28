@@ -9,7 +9,7 @@ public interface UserService {
 
     User createNewUser(RegistrationUserDto registrationUserDto);
 
-    User getUserById(UUID id);
-
     User getUserByUsername(String username);
+
+    String getUsernameOfCurrentUser();
 }

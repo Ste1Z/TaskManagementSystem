@@ -11,7 +11,7 @@ import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
 import ru.effectivemobile.taskmanagementsystem.domain.request.AuthRequest;
 import ru.effectivemobile.taskmanagementsystem.domain.response.JwtResponse;
-import ru.effectivemobile.taskmanagementsystem.domain.response.UserDto;
+import ru.effectivemobile.taskmanagementsystem.domain.dto.UserDto;
 import ru.effectivemobile.taskmanagementsystem.exception.AuthException;
 import ru.effectivemobile.taskmanagementsystem.security.JwtService;
 import ru.effectivemobile.taskmanagementsystem.service.AuthService;

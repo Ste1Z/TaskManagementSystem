@@ -1,5 +1,6 @@
 package ru.effectivemobile.taskmanagementsystem.service;
 
+import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.Task;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface TaskService {
     Task getTaskById(UUID id);
 
     List<Task> getAllTasks();
+
+    List<TaskDto> taskListToDtoList(List<Task> taskList);
 }

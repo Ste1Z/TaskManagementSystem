@@ -1,5 +1,6 @@
 package ru.effectivemobile.taskmanagementsystem.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

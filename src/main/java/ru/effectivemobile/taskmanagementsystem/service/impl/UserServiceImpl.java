@@ -1,7 +1,9 @@
 package ru.effectivemobile.taskmanagementsystem.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,15 +12,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
+import ru.effectivemobile.taskmanagementsystem.exception.NotAuthorizedUserException;
 import ru.effectivemobile.taskmanagementsystem.exception.UserAlreadyExistsException;
 import ru.effectivemobile.taskmanagementsystem.exception.UserNotFoundException;
 import ru.effectivemobile.taskmanagementsystem.repository.UserRepository;
+import ru.effectivemobile.taskmanagementsystem.security.JwtAuthentication;
 import ru.effectivemobile.taskmanagementsystem.security.Role;
 import ru.effectivemobile.taskmanagementsystem.service.UserService;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,15 +48,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User getUserById(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(String.format("User with id '%s' not found", id)));
+    public User getUserByUsername(String username) throws UserNotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username '%s' not found", username)));
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username '%s' not found", username)));
+    public String getUsernameOfCurrentUser() throws NotAuthorizedUserException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new NotAuthorizedUserException("Not authorized user");
+        }
+        if (authentication instanceof JwtAuthentication jwtAuth) {
+            return jwtAuth.getUsername();
+        } else {
+            throw new NotAuthorizedUserException("Not authorized user");
+        }
     }
 
     @Override
