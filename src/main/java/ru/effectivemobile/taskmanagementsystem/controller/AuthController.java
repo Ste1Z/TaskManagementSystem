@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
 import ru.effectivemobile.taskmanagementsystem.domain.request.AuthRequest;
+import ru.effectivemobile.taskmanagementsystem.domain.request.RefreshJwtRequest;
+import ru.effectivemobile.taskmanagementsystem.domain.response.JwtResponse;
 import ru.effectivemobile.taskmanagementsystem.service.impl.AuthServiceImpl;
 
 @RestController
@@ -17,7 +19,13 @@ public class AuthController {
 
     @PostMapping("/auth")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) {
-        return authService.checkAndCreateAuthenticationToken(authRequest);
+        return ResponseEntity.ok(authService.authAndGetToken(authRequest));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> getNewAccessToken(@RequestBody RefreshJwtRequest request) {
+        final JwtResponse token = authService.refreshAndGetToken(request.refreshToken());
+        return ResponseEntity.ok(token);
     }
 
     @PostMapping("/registration")

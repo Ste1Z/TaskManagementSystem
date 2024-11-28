@@ -15,4 +15,5 @@ spring:
       ddl-auto: none
 jwt:
   secret: jOu4scZUwu34BLGxZQWXAakYRVb62dyRi8tMC66wAlA=
-  lifetime: 30m
+  lifetime: 3600
+  refreshLifetime: 3600

@@ -1,54 +1,45 @@
 package ru.effectivemobile.taskmanagementsystem.security;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class JwtFilter extends OncePerRequestFilter {
+public class JwtFilter extends GenericFilterBean {
 
-    private final JwtToken jwtToken;
+    private static final String AUTHORIZATION = "Authorization";
+
+    private final JwtService jwtService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String username = null;
-        String jwt = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            try {
-                username = jwtToken.getUsername(jwt);
-            } catch (ExpiredJwtException e) {
-                System.out.println("JWT token expired");
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token expired");
-                return;
-            } catch (SignatureException e) {
-                System.out.println("Invalid JWT token signature");
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token signature");
-                return;
-            }
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc)
+            throws IOException, ServletException {
+        final String token = getTokenFromRequest((HttpServletRequest) request);
+        if (token != null && jwtService.validateAccessToken(token)) {
+            final Claims claims = jwtService.getAccessClaims(token);
+            final JwtAuthentication jwtInfoToken = jwtService.generate(claims);
+            SecurityContextHolder.getContext().setAuthentication(jwtInfoToken);
         }
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    jwtToken.getRoles(jwt).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
-            );
-            SecurityContextHolder.getContext().setAuthentication(token);
-        }
-        filterChain.doFilter(request, response);
+        fc.doFilter(request, response);
     }
+
+    private String getTokenFromRequest(HttpServletRequest request) {
+        final String bearer = request.getHeader(AUTHORIZATION);
+        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
+    }
+
 }

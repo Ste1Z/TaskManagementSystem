@@ -11,12 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
 import ru.effectivemobile.taskmanagementsystem.exception.UserAlreadyExistsException;
+import ru.effectivemobile.taskmanagementsystem.exception.UserNotFoundException;
 import ru.effectivemobile.taskmanagementsystem.repository.UserRepository;
 import ru.effectivemobile.taskmanagementsystem.security.Role;
 import ru.effectivemobile.taskmanagementsystem.service.UserService;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +42,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UserAlreadyExistsException(String.format("User with username '%s' already exists", registrationUserDto.getUsername()));
         }
         return userRepository.save(user);
+    }
+
+    @Override
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id '%s' not found", id)));
+    }
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username '%s' not found", username)));
     }
 
     @Override
