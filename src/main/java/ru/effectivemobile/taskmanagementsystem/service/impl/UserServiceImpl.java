@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
+import ru.effectivemobile.taskmanagementsystem.domain.entity.Task;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
 import ru.effectivemobile.taskmanagementsystem.exception.NotAuthorizedUserException;
 import ru.effectivemobile.taskmanagementsystem.exception.UserAlreadyExistsException;
@@ -64,6 +65,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } else {
             throw new NotAuthorizedUserException("Not authorized user");
         }
+    }
+
+    @Override
+    public User getCurrentUser() {
+        String username = this.getUsernameOfCurrentUser();
+        return this.getUserByUsername(username);
     }
 
     @Override

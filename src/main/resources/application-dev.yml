@@ -1,6 +1,9 @@
 spring:
   application:
     name: TaskManagementSystem
+  devtools:
+    restart:
+      enabled: false
   datasource:
     url: jdbc:postgresql://${TMS_HOST_NAME}:${TMS_DB_PORT}/${TMS_DB_NAME}
     username: ${TMS_DB_USER}
@@ -8,8 +11,10 @@ spring:
     driver-class-name: org.postgresql.Driver
   liquibase:
     enabled: true
+    url: jdbc:postgresql://${TMS_HOST_NAME}:${TMS_DB_PORT}/${TMS_DB_NAME}
     user: ${TMS_DB_USER}
     password: ${TMS_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none

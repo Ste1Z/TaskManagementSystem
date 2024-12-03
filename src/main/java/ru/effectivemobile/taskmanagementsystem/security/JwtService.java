@@ -2,7 +2,6 @@ package ru.effectivemobile.taskmanagementsystem.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -13,13 +12,13 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
+import ru.effectivemobile.taskmanagementsystem.exception.JwtException;
 
 import java.security.Key;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,7 +89,7 @@ public class JwtService {
                 .getBody();
     }
 
-    private boolean validateToken(@NonNull String token) {
+    private boolean validateToken(@NonNull String token) throws JwtException {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(getSignKey())
