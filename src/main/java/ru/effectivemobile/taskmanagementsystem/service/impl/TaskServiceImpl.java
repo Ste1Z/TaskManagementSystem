@@ -45,12 +45,12 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(Status.valueOf(taskForUpdate.getStatus()));
             task.setPriority(Priority.valueOf(taskForUpdate.getPriority()));
             task.setExecutor(userService.getUserByUsername(taskForUpdate.getExecutor()));
-            task.setComment(taskForUpdate.getComment());
+            task.setComments(taskForUpdate.getComment());
             taskRepository.save(task);
         }
         if (isCurrentUserOwner(currentUser, task)) {
             task.setStatus(Status.valueOf(taskForUpdate.getStatus()));
-            task.setComment(taskForUpdate.getComment());
+            task.setComments(taskForUpdate.getComment());
             taskRepository.save(task);
         }
     }
@@ -69,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
                 .description(taskDto.getDescription())
                 .status(Status.valueOf(taskDto.getStatus()))
                 .priority(Priority.valueOf(taskDto.getPriority()))
-                .comment(taskDto.getComment())
+                .comments(taskDto.getComment())
                 .executor(userService.getUserByUsername(taskDto.getExecutor()))
                 .build();
     }
@@ -82,7 +82,7 @@ public class TaskServiceImpl implements TaskService {
                 task.getDescription(),
                 task.getStatus().name(),
                 task.getPriority().name(),
-                task.getComment(),
+                task.getComments(),
                 task.getExecutor().getUsername()
         );
     }
@@ -99,9 +99,14 @@ public class TaskServiceImpl implements TaskService {
                         task.getDescription(),
                         task.getStatus().name(),
                         task.getPriority().name(),
-                        task.getComment(),
+                        task.getComments(),
                         task.getExecutor().getUsername()
                 ))
                 .toList();
+    }
+
+    @Override
+    public void updateTaskComments(Task task) {
+        taskRepository.save(task);
     }
 }

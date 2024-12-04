@@ -16,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
-import ru.effectivemobile.taskmanagementsystem.domain.dto.ErrorMessage;
+import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
 import ru.effectivemobile.taskmanagementsystem.exception.JwtException;
 
 import java.io.IOException;

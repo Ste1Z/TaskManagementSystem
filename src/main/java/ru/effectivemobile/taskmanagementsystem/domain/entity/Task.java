@@ -1,7 +1,9 @@
 package ru.effectivemobile.taskmanagementsystem.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -43,7 +46,10 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
-    private String comment;
+    @ElementCollection
+    @CollectionTable(name = "task_comments", joinColumns = @JoinColumn(name = "task_id"))
+    @Column(name = "comment")
+    private List<String> comments;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "author")

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.effectivemobile.taskmanagementsystem.domain.dto.ErrorMessage;
+import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
 import ru.effectivemobile.taskmanagementsystem.domain.request.AuthRequest;

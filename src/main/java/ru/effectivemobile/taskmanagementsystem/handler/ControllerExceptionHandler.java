@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.effectivemobile.taskmanagementsystem.domain.dto.ErrorMessage;
+import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
 import ru.effectivemobile.taskmanagementsystem.exception.AuthException;
 import ru.effectivemobile.taskmanagementsystem.exception.TaskNotFoundException;
 import ru.effectivemobile.taskmanagementsystem.exception.UserAlreadyExistsException;

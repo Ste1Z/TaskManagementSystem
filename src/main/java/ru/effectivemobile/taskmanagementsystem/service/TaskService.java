@@ -21,4 +21,6 @@ public interface TaskService {
     TaskDto taskToTaskDto(Task task);
 
     List<TaskDto> taskListToDtoList(List<Task> taskList);
+
+    void updateTaskComments(Task task);
 }

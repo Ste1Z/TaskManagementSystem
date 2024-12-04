@@ -1,10 +1,10 @@
 package ru.effectivemobile.taskmanagementsystem.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.effectivemobile.taskmanagementsystem.domain.dto.ErrorMessage;
+import ru.effectivemobile.taskmanagementsystem.domain.dto.CommentDto;
+import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
+import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskCommentsDto;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.Task;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
@@ -94,5 +96,31 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorMessage(HttpStatus.FORBIDDEN.value(), "Not authorized user"));
         }
         return ResponseEntity.ok(taskService.taskListToDtoList(currentUser.getAssignedTasks()));
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<?> getTaskComments(@PathVariable UUID id) {
+        User currentUser = userService.getCurrentUser();
+        Task task = taskService.getTaskById(id);
+        if (isCurrentUserOwner(currentUser, task) || isCurrentUserAdmin(currentUser)) {
+            return ResponseEntity.ok(new TaskCommentsDto(task.getId(), task.getComments()));
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorMessage(HttpStatus.FORBIDDEN.value(),
+                    "You do not have permission to access this resource"));
+        }
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<?> addCommentToTask(@PathVariable UUID id, @Valid @RequestBody CommentDto comment) {
+        User currentUser = userService.getCurrentUser();
+        Task task = taskService.getTaskById(id);
+        task.getComments().add(comment.getComment());
+        taskService.updateTaskComments(task);
+        if (isCurrentUserOwner(currentUser, task) || isCurrentUserAdmin(currentUser)) {
+            return ResponseEntity.ok(new TaskCommentsDto(task.getId(), task.getComments()));
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorMessage(HttpStatus.FORBIDDEN.value(),
+                    "You do not have permission to access this resource"));
+        }
     }
 }

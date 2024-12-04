@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS tasks
     description VARCHAR(256) NOT NULL,
     status      VARCHAR(50)  NOT NULL,
     priority    VARCHAR(50)  NOT NULL,
-    comment     VARCHAR(256),
     author      UUID         NOT NULL REFERENCES users (id),
     executor    UUID         NOT NULL REFERENCES users (id)
 );

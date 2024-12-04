@@ -12,6 +12,7 @@ import ru.effectivemobile.taskmanagementsystem.domain.entity.Priority;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.Status;
 import ru.effectivemobile.taskmanagementsystem.util.validation.EnumValidation;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -23,11 +24,11 @@ public class TaskDto {
     private UUID id;
 
     @NotBlank(message = "Title cannot be blank")
-    @Size(max = 50, message = "Max length is 50 character")
+    @Size(max = 50, message = "Max length are 50 chars")
     private String title;
 
     @NotBlank(message = "Description cannot be blank")
-    @Size(max = 256, message = "Description cannot exceed 256 characters")
+    @Size(max = 256, message = "Max length are 256 chars")
     private String description;
 
     @NotBlank(message = "Status cannot be blank")
@@ -40,9 +41,8 @@ public class TaskDto {
     @Enumerated(EnumType.STRING)
     private String priority;
 
-    @Size(max = 256, message = "Max length is 256 character")
-    private String comment;
+    private List<String> comment;
 
-    @NotBlank(message = "Executor cannot be null")
+    @NotBlank(message = "Executor cannot be blank")
     private String executor;
 }

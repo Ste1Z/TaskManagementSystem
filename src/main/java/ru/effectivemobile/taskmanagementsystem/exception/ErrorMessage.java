@@ -1,4 +1,4 @@
-package ru.effectivemobile.taskmanagementsystem.domain.dto;
+package ru.effectivemobile.taskmanagementsystem.exception;
 
 import lombok.Data;
 

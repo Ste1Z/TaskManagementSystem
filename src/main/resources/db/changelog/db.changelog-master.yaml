@@ -11,3 +11,7 @@ databaseChangeLog:
       file: db/changelog/migration/user_roles_table_init1.0.sql
   - include:
       file: db/changelog/migration/user_roles_test_data_insert_1.0.sql
+  - include:
+      file: db/changelog/migration/task_comments_init_1.0.sql
+  - include:
+      file: db/changelog/migration/task_comments_test_data_insert_1.0.sql
