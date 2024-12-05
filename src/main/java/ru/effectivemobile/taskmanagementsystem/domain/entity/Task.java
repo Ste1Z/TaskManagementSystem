@@ -23,6 +23,9 @@ import lombok.Setter;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Сущность задачи.
+ */
 @Getter
 @Setter
 @Builder
@@ -32,29 +35,53 @@ import java.util.UUID;
 @Table(name = "tasks")
 public class Task {
 
+    /**
+     * Id задачи.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /**
+     * Заголовок задачи.
+     */
     private String title;
 
+    /**
+     * Описание задачи.
+     */
     private String description;
 
+    /**
+     * {@link Status} задачи.
+     */
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    /**
+     * {@link Priority} задачи.
+     */
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
+    /**
+     * {@link List<String>} с комментариями к задаче.
+     */
     @ElementCollection
     @CollectionTable(name = "task_comments", joinColumns = @JoinColumn(name = "task_id"))
     @Column(name = "comment")
     private List<String> comments;
 
+    /**
+     * {@link User}, являющийся автором задачи.
+     */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "author")
     private User author;
 
+    /**
+     * {@link User}, являющийся исполнителем задачи.
+     */
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "executor")
     private User executor;

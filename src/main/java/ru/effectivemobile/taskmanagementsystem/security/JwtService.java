@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для работы с JWT-токенами, включая их генерацию, валидацию и извлечение данных.
+ */
 @Service
 public class JwtService {
 
@@ -35,6 +38,12 @@ public class JwtService {
     @Value("${jwt.refreshLifetime}")
     private Long jwtRefreshLifetime;
 
+    /**
+     * Генерирует JWT токен доступа для указанного пользователя.
+     *
+     * @param user объект пользователя, для которого создается токен.
+     * @return {@link String}.
+     */
     public String generateToken(@NonNull User user) {
         LocalDateTime now = LocalDateTime.now();
         Instant accessExpirationInstant =
@@ -51,6 +60,12 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Генерирует refresh-токен для указанного пользователя.
+     *
+     * @param user объект пользователя, для которого создается refresh-токен.
+     * @return {@link String}.
+     */
     public String generateRefreshToken(@NonNull User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant refreshExpirationInstant =
@@ -65,23 +80,67 @@ public class JwtService {
                 .compact();
     }
 
-
+    /**
+     * Проверяет валидность токена доступа.
+     *
+     * @param accessToken строка токена доступа.
+     * @return true, если токен валиден; false, если нет.
+     */
     public boolean validateAccessToken(@NonNull String accessToken) {
         return validateToken(accessToken);
     }
 
+    /**
+     * Проверяет валидность refresh-токена.
+     *
+     * @param refreshToken строка refresh-токена.
+     * @return true, если токен валиден; false, если нет.
+     */
     public boolean validateRefreshToken(@NonNull String refreshToken) {
         return validateToken(refreshToken);
     }
 
+    /**
+     * Извлекает claims из токена доступа.
+     *
+     * @param token строка токена.
+     * @return {@link Claims}.
+     */
     public Claims getAccessClaims(@NonNull String token) {
         return getClaims(token);
     }
 
+    /**
+     * Извлекает claims из refresh-токена.
+     *
+     * @param token строка токена.
+     * @return {@link Claims}.
+     */
     public Claims getRefreshClaims(@NonNull String token) {
         return getClaims(token);
     }
 
+    /**
+     * Генерирует объект {@link JwtAuthentication} на основе claims из токена.
+     *
+     * @param claims объект claims, извлеченный из токена.
+     * @return {@link JwtAuthentication}.
+     */
+    public JwtAuthentication generate(Claims claims) {
+        String login = claims.getSubject();
+        List<String> roleNames = claims.get("roles", List.class);
+        Set<Role> roles = roleNames.stream()
+                .map(Role::valueOf)
+                .collect(Collectors.toSet());
+        return new JwtAuthentication(true, login, roles);
+    }
+
+    /**
+     * Извлекает claims из указанного токена.
+     *
+     * @param token строка токена.
+     * @return {@link Claims}.
+     */
     private Claims getClaims(@NonNull String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
@@ -89,6 +148,13 @@ public class JwtService {
                 .getBody();
     }
 
+    /**
+     * Проверяет валидность указанного токена.
+     *
+     * @param token строка токена.
+     * @return true, если токен валиден.
+     * @throws JwtException если токен недействителен (истек, некорректный формат, неподдерживаемый или имеет неправильную подпись).
+     */
     private boolean validateToken(@NonNull String token) throws JwtException {
         try {
             Jwts.parserBuilder()
@@ -103,17 +169,13 @@ public class JwtService {
         }
     }
 
+    /**
+     * Получает ключ подписи из строки секрета.
+     *
+     * @return {@link Key}.
+     */
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public JwtAuthentication generate(Claims claims) {
-        String login = claims.getSubject();
-        List<String> roleNames = claims.get("roles", List.class);
-        Set<Role> roles = roleNames.stream()
-                .map(Role::valueOf)
-                .collect(Collectors.toSet());
-        return new JwtAuthentication(true, login, roles);
     }
 }

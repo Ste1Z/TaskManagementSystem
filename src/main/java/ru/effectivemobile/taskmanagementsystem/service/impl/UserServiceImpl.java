@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
-import ru.effectivemobile.taskmanagementsystem.domain.entity.Task;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
 import ru.effectivemobile.taskmanagementsystem.exception.NotAuthorizedUserException;
 import ru.effectivemobile.taskmanagementsystem.exception.UserAlreadyExistsException;
@@ -25,6 +24,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Реализация сервиса для работы с пользователями.
+ * Предоставляет методы для создания новых пользователей, получения текущего пользователя и интеграции с Spring Security.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -33,6 +36,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Создает нового пользователя на основе переданных данных.
+     *
+     * @param registrationUserDto данные для регистрации нового пользователя.
+     * @return {@link User}.
+     * @throws UserAlreadyExistsException если пользователь с указанным именем уже существует.
+     */
     @Override
     public User createNewUser(RegistrationUserDto registrationUserDto) throws UserAlreadyExistsException {
         Optional<User> possibleUser = userRepository.findByUsername(registrationUserDto.getUsername());
@@ -49,12 +59,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.save(user);
     }
 
+    /**
+     * Возвращает пользователя по имени пользователя.
+     *
+     * @param username имя пользователя.
+     * @return {@link User}.
+     * @throws UserNotFoundException если пользователь не найден.
+     */
     @Override
     public User getUserByUsername(String username) throws UserNotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username '%s' not found", username)));
     }
 
+    /**
+     * Возвращает имя текущего пользователя.
+     *
+     * @return {@link String}.
+     * @throws NotAuthorizedUserException если пользователь не авторизован.
+     */
     @Override
     public String getUsernameOfCurrentUser() throws NotAuthorizedUserException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -68,12 +91,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    /**
+     * Возвращает текущего пользователя.
+     *
+     * @return {@link User}.
+     */
     @Override
     public User getCurrentUser() {
         String username = this.getUsernameOfCurrentUser();
         return this.getUserByUsername(username);
     }
 
+    /**
+     * Загружает пользователя для Spring Security по имени пользователя.
+     *
+     * @param username имя пользователя.
+     * @return {@link UserDetails}.
+     * @throws UsernameNotFoundException если пользователь не найден.
+     */
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

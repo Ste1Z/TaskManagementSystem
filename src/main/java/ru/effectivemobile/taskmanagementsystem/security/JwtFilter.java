@@ -21,6 +21,9 @@ import ru.effectivemobile.taskmanagementsystem.exception.JwtException;
 
 import java.io.IOException;
 
+/**
+ * Реализация фильтра Spring Security для обработки JWT-аутентификации.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends GenericFilterBean {
@@ -29,6 +32,15 @@ public class JwtFilter extends GenericFilterBean {
 
     private final JwtService jwtService;
 
+    /**
+     * Обрабатывает запрос: извлекает JWT-токен, проверяет его и устанавливает аутентификацию.
+     *
+     * @param request  объект запроса Servlet
+     * @param response объект ответа Servlet
+     * @param fc       цепочка фильтров
+     * @throws IOException      если возникает ошибка ввода-вывода
+     * @throws ServletException если возникает ошибка, специфичная для сервлета
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc) throws IOException, ServletException {
         try {
@@ -44,7 +56,12 @@ public class JwtFilter extends GenericFilterBean {
         }
     }
 
-
+    /**
+     * Извлекает JWT-токен из заголовка Authorization запроса.
+     *
+     * @param request объект HTTP-запроса
+     * @return {@link String} или null, если токен отсутствует или некорректен
+     */
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearer = request.getHeader(AUTHORIZATION);
         if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
@@ -53,6 +70,13 @@ public class JwtFilter extends GenericFilterBean {
         return null;
     }
 
+    /**
+     * Обрабатывает исключение JwtException и записывает сообщение об ошибке в ответ.
+     *
+     * @param jwtException исключение JwtException
+     * @param response     объект HTTP-ответа
+     * @throws IOException если возникает ошибка записи в ответ
+     */
     private void catchJwtExceptionAndReturnErrorMessage(JwtException jwtException, HttpServletResponse response) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");

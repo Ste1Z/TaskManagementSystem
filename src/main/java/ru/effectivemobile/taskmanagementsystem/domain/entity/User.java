@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Сущность пользователя.
+ */
 @Getter
 @Setter
 @Builder
@@ -34,23 +37,41 @@ import java.util.UUID;
 @Table(name = "users")
 public class User {
 
+    /**
+     * Id пользователя.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /**
+     * Имя пользователя.
+     */
     private String username;
 
+    /**
+     * Пароль пользователя.
+     */
     private String password;
 
+    /**
+     * {@link Set<Role>} пользователя.
+     */
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    /**
+     * {@link List<Task>}, которые создал пользователь.
+     */
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Task> myTasks;
 
+    /**
+     * {@link List<Task>}, в которых пользователь исполнитель.
+     */
     @OneToMany(mappedBy = "executor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Task> assignedTasks;
 }

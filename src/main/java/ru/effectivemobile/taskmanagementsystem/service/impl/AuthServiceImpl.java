@@ -20,6 +20,9 @@ import ru.effectivemobile.taskmanagementsystem.service.AuthService;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Реализация сервиса аутентификации и регистрации пользователей.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -31,6 +34,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final Map<String, String> refreshStorage = new ConcurrentHashMap<>();
 
+    /**
+     * Проверяет корректность данных для регистрации и регистрирует нового пользователя.
+     *
+     * @param registrationUserDto данные для регистрации нового пользователя.
+     * @return {@link ResponseEntity}.
+     */
     @Override
     public ResponseEntity<?> checkAndRegister(RegistrationUserDto registrationUserDto) {
         if (!registrationUserDto.getPassword().equals(registrationUserDto.getConfirmPassword())) {
@@ -40,10 +49,17 @@ public class AuthServiceImpl implements AuthService {
         return ResponseEntity.ok(new UserDto(user.getId(), user.getUsername()));
     }
 
+    /**
+     * Аутентифицирует пользователя и генерирует JWT-токен и refresh-токен.
+     *
+     * @param authRequest запрос с данными для аутентификации.
+     * @return {@link JwtResponse}.
+     * @throws AuthException если пароль некорректен.
+     */
     @Override
     public JwtResponse authAndGetToken(AuthRequest authRequest) {
         User user = userService.getUserByUsername(authRequest.username());
-        if (!passwordEncoder.matches( authRequest.password(),user.getPassword())) {
+        if (!passwordEncoder.matches(authRequest.password(), user.getPassword())) {
             throw new AuthException("Incorrect password");
         }
         String token = jwtService.generateToken(user);
@@ -55,6 +71,12 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /**
+     * Обновляет и возвращает JWT-токен на основе refresh-токена.
+     *
+     * @param refreshToken refresh-токен.
+     * @return {@link JwtResponse} или null, если refresh-токен недействителен.
+     */
     public JwtResponse refreshAndGetToken(String refreshToken) {
         if (jwtService.validateRefreshToken(refreshToken)) {
             final Claims claims = jwtService.getRefreshClaims(refreshToken);

@@ -19,6 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import ru.effectivemobile.taskmanagementsystem.security.JwtFilter;
 import ru.effectivemobile.taskmanagementsystem.service.impl.UserServiceImpl;
 
+/**
+ * Настройка Spring Security в приложении.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
@@ -29,6 +32,13 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Настраивает цепочку фильтров безопасности.
+     *
+     * @param http объект HttpSecurity для конфигурации параметров безопасности
+     * @return {@link SecurityFilterChain}.
+     * @throws Exception если возникнет ошибка при конфигурации
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -45,11 +55,23 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Возвращает менеджер аутентификации.
+     *
+     * @param authenticationConfiguration конфигурация аутентификации
+     * @return {@link AuthenticationManager}.
+     * @throws Exception если возникнет ошибка при получении менеджера аутентификации
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    /**
+     * Настраивает провайдер аутентификации с использованием пользовательских данных и шифрования паролей.
+     *
+     * @return {@link DaoAuthenticationProvider}.
+     */
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();

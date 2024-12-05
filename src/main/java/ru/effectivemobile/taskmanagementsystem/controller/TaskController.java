@@ -2,6 +2,7 @@ package ru.effectivemobile.taskmanagementsystem.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +24,15 @@ import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
 import ru.effectivemobile.taskmanagementsystem.service.impl.TaskServiceImpl;
 import ru.effectivemobile.taskmanagementsystem.service.impl.UserServiceImpl;
 
+import java.util.List;
 import java.util.UUID;
 
 import static ru.effectivemobile.taskmanagementsystem.util.UserUtil.isCurrentUserAdmin;
 import static ru.effectivemobile.taskmanagementsystem.util.UserUtil.isCurrentUserOwner;
 
+/**
+ * Контроллер для обработки запросов связанных с задачами.
+ */
 @RestController
 @RequestMapping("api/v1/tasks")
 @RequiredArgsConstructor
@@ -36,6 +41,12 @@ public class TaskController {
     private final TaskServiceImpl taskService;
     private final UserServiceImpl userService;
 
+    /**
+     * Создает новую задачу.
+     *
+     * @param taskDto DTO объекта задачи.
+     * @return {@link ResponseEntity<TaskDto>} или сообщение об ошибке.
+     */
     @PostMapping
     public ResponseEntity<?> createTask(@Valid @RequestBody TaskDto taskDto) {
         User currentUser = userService.getCurrentUser();
@@ -50,6 +61,12 @@ public class TaskController {
         }
     }
 
+    /**
+     * Получает задачу по идентификатору.
+     *
+     * @param id идентификатор задачи.
+     * @return {@link ResponseEntity<TaskDto>} или сообщение об ошибке.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getTask(@PathVariable UUID id) {
         User currentUser = userService.getCurrentUser();
@@ -62,6 +79,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Обновляет задачу.
+     *
+     * @param id            идентификатор задачи.
+     * @param taskForUpdate DTO объекта задачи для обновления.
+     * @return {@link ResponseEntity<TaskDto>}.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable UUID id, @Valid @RequestBody TaskDto taskForUpdate) {
         taskService.updateTask(id, taskForUpdate);
@@ -69,6 +93,12 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
     }
 
+    /**
+     * Удаляет задачу.
+     *
+     * @param id идентификатор задачи.
+     * @return сообщение об успешном удалении или ошибке.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable UUID id) {
         User currentUser = userService.getCurrentUser();
@@ -81,6 +111,17 @@ public class TaskController {
         }
     }
 
+    /**
+     * Получает список задач текущего пользователя с фильтрацией.
+     *
+     * @param title    фильтр по заголовку.
+     * @param status   фильтр по статусу.
+     * @param priority фильтр по приоритету.
+     * @param author   фильтр по автору.
+     * @param executor фильтр по исполнителю.
+     * @param pageable объект для пагинации.
+     * @return {@link ResponseEntity<Page>}.
+     */
     @GetMapping("/myTasks")
     public ResponseEntity<?> getMyTasksWithFilters(@RequestParam(required = false) String title,
                                                    @RequestParam(required = false) String status,
@@ -91,6 +132,17 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getMyTasksWithFilters(title, status, priority, author, executor, pageable));
     }
 
+    /**
+     * Получает список задач, назначенных текущему пользователю, с фильтрацией.
+     *
+     * @param title    фильтр по заголовку.
+     * @param status   фильтр по статусу.
+     * @param priority фильтр по приоритету.
+     * @param author   фильтр по автору.
+     * @param executor фильтр по исполнителю.
+     * @param pageable объект для пагинации.
+     * @return {@link ResponseEntity<Page>}.
+     */
     @GetMapping("/assignedTasks")
     public ResponseEntity<?> getAssignedTasksWithFilters(@RequestParam(required = false) String title,
                                                          @RequestParam(required = false) String status,
@@ -101,6 +153,12 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAssignedTasksWithFilters(title, status, priority, author, executor, pageable));
     }
 
+    /**
+     * Получает комментарии задачи.
+     *
+     * @param id идентификатор задачи.
+     * @return {@link ResponseEntity<List>}.
+     */
     @GetMapping("/{id}/comments")
     public ResponseEntity<?> getTaskComments(@PathVariable UUID id) {
         User currentUser = userService.getCurrentUser();
@@ -113,6 +171,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Добавляет комментарий к задаче.
+     *
+     * @param id      идентификатор задачи.
+     * @param comment DTO объекта комментария.
+     * @return обновленный список комментариев или сообщение об ошибке.
+     */
     @PostMapping("/{id}/comments")
     public ResponseEntity<?> addCommentToTask(@PathVariable UUID id, @Valid @RequestBody CommentDto comment) {
         User currentUser = userService.getCurrentUser();
