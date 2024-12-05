@@ -1,8 +1,8 @@
 package ru.effectivemobile.taskmanagementsystem.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.CommentDto;
-import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskCommentsDto;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.Task;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.User;
+import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
 import ru.effectivemobile.taskmanagementsystem.service.impl.TaskServiceImpl;
 import ru.effectivemobile.taskmanagementsystem.service.impl.UserServiceImpl;
 
@@ -81,21 +82,23 @@ public class TaskController {
     }
 
     @GetMapping("/myTasks")
-    public ResponseEntity<?> getMyTasks() {
-        User currentUser = userService.getCurrentUser();
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorMessage(HttpStatus.FORBIDDEN.value(), "Not authorized user"));
-        }
-        return ResponseEntity.ok(taskService.taskListToDtoList(currentUser.getMyTasks()));
+    public ResponseEntity<?> getMyTasksWithFilters(@RequestParam(required = false) String title,
+                                                   @RequestParam(required = false) String status,
+                                                   @RequestParam(required = false) String priority,
+                                                   @RequestParam(required = false) String author,
+                                                   @RequestParam(required = false) String executor,
+                                                   Pageable pageable) {
+        return ResponseEntity.ok(taskService.getMyTasksWithFilters(title, status, priority, author, executor, pageable));
     }
 
     @GetMapping("/assignedTasks")
-    public ResponseEntity<?> getAssignedTasks() {
-        User currentUser = userService.getCurrentUser();
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorMessage(HttpStatus.FORBIDDEN.value(), "Not authorized user"));
-        }
-        return ResponseEntity.ok(taskService.taskListToDtoList(currentUser.getAssignedTasks()));
+    public ResponseEntity<?> getAssignedTasksWithFilters(@RequestParam(required = false) String title,
+                                                         @RequestParam(required = false) String status,
+                                                         @RequestParam(required = false) String priority,
+                                                         @RequestParam(required = false) String author,
+                                                         @RequestParam(required = false) String executor,
+                                                         Pageable pageable) {
+        return ResponseEntity.ok(taskService.getAssignedTasksWithFilters(title, status, priority, author, executor, pageable));
     }
 
     @GetMapping("/{id}/comments")

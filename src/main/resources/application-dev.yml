@@ -18,6 +18,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100
 jwt:
   secret: jOu4scZUwu34BLGxZQWXAakYRVb62dyRi8tMC66wAlA=
   lifetime: 3600

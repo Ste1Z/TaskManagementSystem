@@ -41,7 +41,10 @@ public class TaskDto {
     @Enumerated(EnumType.STRING)
     private String priority;
 
-    private List<String> comment;
+    private List<String> comments;
+
+    @NotBlank(message = "Executor cannot be blank")
+    private String author;
 
     @NotBlank(message = "Executor cannot be blank")
     private String executor;
