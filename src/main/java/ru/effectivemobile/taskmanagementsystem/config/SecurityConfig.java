@@ -16,6 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ru.effectivemobile.taskmanagementsystem.security.JwtFilter;
 import ru.effectivemobile.taskmanagementsystem.service.impl.UserServiceImpl;
 
@@ -43,16 +46,34 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/registration").permitAll()
                         .requestMatchers("/auth").permitAll()
                         .requestMatchers("/refresh").permitAll()
-                        .anyRequest().authenticated())
+//                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    /**
+     * Конфигурирует CORS (Cross-Origin Resource Sharing) для приложения.
+     *
+     * @return {@link CorsConfigurationSource}.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowCredentials(true);
+        corsConfig.addAllowedOriginPattern("*");
+        corsConfig.addAllowedHeader("*");
+        corsConfig.addAllowedMethod("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+        return source;
     }
 
     /**

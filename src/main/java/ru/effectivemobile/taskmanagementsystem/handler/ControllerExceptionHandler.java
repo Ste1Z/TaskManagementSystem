@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.effectivemobile.taskmanagementsystem.exception.AuthException;
 import ru.effectivemobile.taskmanagementsystem.exception.ErrorMessage;
+import ru.effectivemobile.taskmanagementsystem.exception.JwtException;
 import ru.effectivemobile.taskmanagementsystem.exception.TaskNotFoundException;
 import ru.effectivemobile.taskmanagementsystem.exception.UserAlreadyExistsException;
 import ru.effectivemobile.taskmanagementsystem.exception.UserNotFoundException;
@@ -20,6 +21,29 @@ import java.util.stream.Collectors;
  */
 @RestControllerAdvice
 public class ControllerExceptionHandler {
+
+    /**
+     * Обрабатывает исключение JwtException.
+     *
+     * @param exception исключение, связанное с ошибкой JWT.
+     * @return {@link ResponseEntity} с ошибкой и статусом 400 (BAD_REQUEST)
+     */
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorMessage> handleJwtException(JwtException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
+    }
+
+    /**
+     * Обрабатывает исключение IllegalArgumentException.
+     *
+     * @param exception исключение, связанное с некорректным аргументом.
+     * @return {@link ResponseEntity} с ошибкой и статусом 400 (BAD_REQUEST)
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorMessage> handleIllegalArgumentException(IllegalArgumentException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(HttpStatus.BAD_REQUEST.value(), exception.getMessage()));
+    }
+
     /**
      * Обрабатывает исключения, связанные с ошибками валидации.
      *

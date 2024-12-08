@@ -16,7 +16,7 @@ public interface AuthService {
      * @param authRequest запрос с данными для аутентификации.
      * @return {@link JwtResponse}.
      */
-    JwtResponse authAndGetToken(AuthRequest authRequest);
+    ResponseEntity<?> authAndGetToken(AuthRequest authRequest);
 
     /**
      * Проверяет данные для регистрации и регистрирует нового пользователя.
@@ -25,4 +25,6 @@ public interface AuthService {
      * @return {@link ResponseEntity}.
      */
     ResponseEntity<?> checkAndRegister(RegistrationUserDto registrationUserDto);
+//todo docs
+    JwtResponse refreshAndGetToken(String refreshToken);
 }

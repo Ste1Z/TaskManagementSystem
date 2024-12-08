@@ -7,6 +7,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
     depends_on:
       - postgres
+
   postgres:
     image: 'postgres:14.15'
     container_name: tms_postgres
@@ -18,5 +19,6 @@ services:
       - "${TMS_DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
 volumes:
   postgres_data:

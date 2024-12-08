@@ -33,10 +33,10 @@ public class JwtService {
     private String secret;
 
     @Value("${jwt.lifetime}")
-    private Long accessTokenLifeInSeconds;
+    private Long accessTokenLife;
 
     @Value("${jwt.refreshLifetime}")
-    private Long jwtRefreshLifetime;
+    private Long refreshTokenLifetime;
 
     /**
      * Генерирует JWT токен доступа для указанного пользователя.
@@ -47,7 +47,7 @@ public class JwtService {
     public String generateToken(@NonNull User user) {
         LocalDateTime now = LocalDateTime.now();
         Instant accessExpirationInstant =
-                now.plusSeconds(accessTokenLifeInSeconds)
+                now.plusSeconds(accessTokenLife)
                         .atZone(ZoneId.systemDefault())
                         .toInstant();
         Date accessExpiration = Date.from(accessExpirationInstant);
@@ -69,7 +69,7 @@ public class JwtService {
     public String generateRefreshToken(@NonNull User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant refreshExpirationInstant =
-                now.plusSeconds(jwtRefreshLifetime)
+                now.plusSeconds(refreshTokenLifetime)
                         .atZone(ZoneId.systemDefault())
                         .toInstant();
         final Date refreshExpiration = Date.from(refreshExpirationInstant);
@@ -86,7 +86,8 @@ public class JwtService {
      * @param accessToken строка токена доступа.
      * @return true, если токен валиден; false, если нет.
      */
-    public boolean validateAccessToken(@NonNull String accessToken) {
+    public boolean validateAccessToken(String accessToken) {
+        checkToken(accessToken, "Incorrect token");
         return validateToken(accessToken);
     }
 
@@ -96,7 +97,8 @@ public class JwtService {
      * @param refreshToken строка refresh-токена.
      * @return true, если токен валиден; false, если нет.
      */
-    public boolean validateRefreshToken(@NonNull String refreshToken) {
+    public boolean validateRefreshToken(String refreshToken) {
+        checkToken(refreshToken, "Incorrect refresh token");
         return validateToken(refreshToken);
     }
 
@@ -106,7 +108,8 @@ public class JwtService {
      * @param token строка токена.
      * @return {@link Claims}.
      */
-    public Claims getAccessClaims(@NonNull String token) {
+    public Claims getAccessClaims(String token) {
+        checkToken(token, "Incorrect token");
         return getClaims(token);
     }
 
@@ -116,7 +119,8 @@ public class JwtService {
      * @param token строка токена.
      * @return {@link Claims}.
      */
-    public Claims getRefreshClaims(@NonNull String token) {
+    public Claims getRefreshClaims(String token) {
+        checkToken(token, "Incorrect token");
         return getClaims(token);
     }
 
@@ -141,7 +145,8 @@ public class JwtService {
      * @param token строка токена.
      * @return {@link Claims}.
      */
-    private Claims getClaims(@NonNull String token) {
+    private Claims getClaims(String token) {
+        checkToken(token, "Incorrect token");
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
                 .build().parseClaimsJws(token)
@@ -177,5 +182,18 @@ public class JwtService {
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * Проверяет валидность токена.
+     *
+     * @param token   токен, который необходимо проверить.
+     * @param message сообщение об ошибке, если токен недействителен.
+     * @throws JwtException, если токен равен null или пустой строке.
+     */
+    private void checkToken(String token, String message) throws JwtException {
+        if (token == null || token.isEmpty()) {
+            throw new JwtException(message);
+        }
     }
 }

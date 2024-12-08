@@ -8,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,8 @@ public class JwtFilter extends GenericFilterBean {
     private final JwtService jwtService;
 
     /**
-     * Обрабатывает запрос: извлекает JWT-токен, проверяет его и устанавливает аутентификацию.
+     * Обрабатывает запрос: извлекает JWT-токен из cookies или тела запроса, проверяет его
+     * и устанавливает аутентификацию пользователя в текущем контексте безопасности.
      *
      * @param request  объект запроса Servlet
      * @param response объект ответа Servlet
@@ -44,7 +46,10 @@ public class JwtFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc) throws IOException, ServletException {
         try {
-            String token = getTokenFromRequest((HttpServletRequest) request);
+            String token = getJwtFromCookie((HttpServletRequest) request);
+            if (token == null) {
+                token = getTokenFromRequest((HttpServletRequest) request);
+            }
             if (token != null && jwtService.validateAccessToken(token)) {
                 Claims claims = jwtService.getAccessClaims(token);
                 JwtAuthentication jwtInfoToken = jwtService.generate(claims);
@@ -54,6 +59,24 @@ public class JwtFilter extends GenericFilterBean {
         } catch (JwtException e) {
             catchJwtExceptionAndReturnErrorMessage(e, (HttpServletResponse) response);
         }
+    }
+
+    /**
+     * Извлекает JWT-токен из cookies запроса.
+     *
+     * @param request объект запроса HttpServletRequest
+     * @return {@link String}, если токен найден, иначе null
+     */
+    private String getJwtFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("JWT".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     /**

@@ -1,10 +1,15 @@
 package ru.effectivemobile.taskmanagementsystem.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.CommentDto;
+import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskCommentsDto;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.Task;
@@ -47,6 +53,19 @@ public class TaskController {
      * @param taskDto DTO объекта задачи.
      * @return {@link ResponseEntity<TaskDto>} или сообщение об ошибке.
      */
+    @Operation(summary = "Create a new task", description = "Allows an admin to create a new task",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Task successfully created",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = TaskDto.class))),
+                    @ApiResponse(responseCode = "200", description = "Invalid creation data",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "403", description = "You do not have permission to access this resource",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class)))
+            }
+    )
     @PostMapping
     public ResponseEntity<?> createTask(@Valid @RequestBody TaskDto taskDto) {
         User currentUser = userService.getCurrentUser();
@@ -67,6 +86,19 @@ public class TaskController {
      * @param id идентификатор задачи.
      * @return {@link ResponseEntity<TaskDto>} или сообщение об ошибке.
      */
+    @Operation(summary = "Get task by ID", description = "Allows the owner or an admin to retrieve a task by its ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Task successfully retrieved",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = TaskDto.class))),
+                    @ApiResponse(responseCode = "403", description = "You do not have permission to access this resource",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Task with id not found",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class)))
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<?> getTask(@PathVariable UUID id) {
         User currentUser = userService.getCurrentUser();
@@ -86,6 +118,16 @@ public class TaskController {
      * @param taskForUpdate DTO объекта задачи для обновления.
      * @return {@link ResponseEntity<TaskDto>}.
      */
+    @Operation(summary = "Update task", description = "Allows an admin or owner to update task details",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Task successfully updated",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = TaskDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Task with id not found",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class)))
+            }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable UUID id, @Valid @RequestBody TaskDto taskForUpdate) {
         taskService.updateTask(id, taskForUpdate);
@@ -99,6 +141,19 @@ public class TaskController {
      * @param id идентификатор задачи.
      * @return сообщение об успешном удалении или ошибке.
      */
+    @Operation(summary = "Delete task", description = "Allows an admin to delete a task by its ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Task successfully deleted",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "403", description = "You do not have permission to access this resource",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Task with id not found",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class)))
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable UUID id) {
         User currentUser = userService.getCurrentUser();
@@ -122,6 +177,14 @@ public class TaskController {
      * @param pageable объект для пагинации.
      * @return {@link ResponseEntity<Page>}.
      */
+    @Operation(summary = "Get tasks created by the current user",
+            description = "Retrieve a paginated and filtered list of tasks assigned to the current user.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Page.class)))
+            }
+    )
     @GetMapping("/myTasks")
     public ResponseEntity<?> getMyTasksWithFilters(@RequestParam(required = false) String title,
                                                    @RequestParam(required = false) String status,
@@ -143,6 +206,14 @@ public class TaskController {
      * @param pageable объект для пагинации.
      * @return {@link ResponseEntity<Page>}.
      */
+    @Operation(summary = "Get tasks assigned to the current user",
+            description = "Retrieve a paginated and filtered list of tasks assigned to the current user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = Page.class)))
+            }
+    )
     @GetMapping("/assignedTasks")
     public ResponseEntity<?> getAssignedTasksWithFilters(@RequestParam(required = false) String title,
                                                          @RequestParam(required = false) String status,
@@ -159,6 +230,19 @@ public class TaskController {
      * @param id идентификатор задачи.
      * @return {@link ResponseEntity<List>}.
      */
+    @Operation(summary = "Get comments of a task", description = "Retrieve comments for a specific task by its ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Comments retrieved successfully",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = TaskCommentsDto.class))),
+                    @ApiResponse(responseCode = "403", description = "You do not have permission to access this resource",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Task with id not found",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class)))
+            }
+    )
     @GetMapping("/{id}/comments")
     public ResponseEntity<?> getTaskComments(@PathVariable UUID id) {
         User currentUser = userService.getCurrentUser();
@@ -178,6 +262,19 @@ public class TaskController {
      * @param comment DTO объекта комментария.
      * @return обновленный список комментариев или сообщение об ошибке.
      */
+    @Operation(summary = "Add comment to a task", description = "Allows the owner or an admin to add a comment to a task.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Comment added successfully",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = TaskCommentsDto.class))),
+                    @ApiResponse(responseCode = "403", description = "You do not have permission to access this resource",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Task with id not found",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorMessage.class)))
+            }
+    )
     @PostMapping("/{id}/comments")
     public ResponseEntity<?> addCommentToTask(@PathVariable UUID id, @Valid @RequestBody CommentDto comment) {
         User currentUser = userService.getCurrentUser();

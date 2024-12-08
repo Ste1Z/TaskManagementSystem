@@ -2,7 +2,6 @@ package ru.effectivemobile.taskmanagementsystem.util.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import ru.effectivemobile.taskmanagementsystem.domain.entity.Status;
 
 import java.util.Arrays;
 
