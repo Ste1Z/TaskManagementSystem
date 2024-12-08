@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.CommentDto;
-import ru.effectivemobile.taskmanagementsystem.domain.dto.RegistrationUserDto;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskCommentsDto;
 import ru.effectivemobile.taskmanagementsystem.domain.dto.TaskDto;
 import ru.effectivemobile.taskmanagementsystem.domain.entity.Task;

@@ -25,6 +25,13 @@ public interface AuthService {
      * @return {@link ResponseEntity}.
      */
     ResponseEntity<?> checkAndRegister(RegistrationUserDto registrationUserDto);
-//todo docs
+
+    /**
+     * Обновляет и возвращает новый JWT-токен на основе переданного refresh-токена.
+     *
+     * @param refreshToken refresh-токен для обновления.
+     * @return {@link JwtResponse} с новыми access и refresh токенами или null, если
+     * refresh-токен недействителен.
+     */
     JwtResponse refreshAndGetToken(String refreshToken);
 }
